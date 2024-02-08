@@ -5,7 +5,7 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URI,
+    origin: [process.env.FRONTEND_URI, process.env.LIVE_FRONTEND_URI],
   })
 );
 
