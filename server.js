@@ -12,6 +12,7 @@ app.use(
 // import routes
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const bookRoutes = require("./routes/bookRoutes");
 const connectDatabase = require("./config/connectDb");
 const errorHandler = require("./middlewares/errorMiddleware");
 
@@ -27,6 +28,7 @@ app.get("/", (req, res) => res.send("Hello World!"));
 
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", userRoutes);
+app.use("/api/v1/books", bookRoutes);
 
 app.use(errorHandler);
 
