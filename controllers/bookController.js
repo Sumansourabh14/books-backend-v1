@@ -4,37 +4,44 @@ const MyBooks = require("../models/MyBooksModel");
 const addToMyBooks = asyncHandler(async (req, res) => {
   const { userId, workId } = req.body;
 
+  const objectId = req.user._id.toString();
+
   if (!userId || !workId) {
     res.status(400);
     throw new Error("All fields are required");
   }
 
-  let myBooks = await MyBooks.findOne({ userId });
+  if (objectId === userId) {
+    let myBooks = await MyBooks.findOne({ userId });
 
-  if (myBooks) {
-    const isBookExists = myBooks.books.find((book) => book.workId === workId);
+    if (myBooks) {
+      const isBookExists = myBooks.books.find((book) => book.workId === workId);
 
-    if (!!isBookExists) {
-      res.status(400);
-      throw new Error("Book already exists in MyBooks");
+      if (!!isBookExists) {
+        res.status(400);
+        throw new Error("Book already exists in MyBooks");
+      }
+
+      myBooks.books.push({ workId });
+      myBooks = await myBooks.save();
+
+      res.status(201).json({ success: true, myBooks });
+    } else {
+      // no myBooks collection for user, create new myBooks
+      const newBook = await MyBooks.create({
+        userId,
+        books: [{ workId }],
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "Created new myBooks collection",
+        newBook,
+      });
     }
-
-    myBooks.books.push({ workId });
-    myBooks = await myBooks.save();
-
-    res.status(201).json({ success: true, myBooks });
   } else {
-    // no myBooks collection for user, create new myBooks
-    const newBook = await MyBooks.create({
-      userId,
-      books: [{ workId }],
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "Created new myBooks collection",
-      newBook,
-    });
+    res.status(400);
+    throw new Error("User is not authorised to edit my books collection");
   }
 });
 
